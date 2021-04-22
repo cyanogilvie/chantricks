@@ -1,0 +1,26 @@
+package require tcltest
+namespace import ::tcltest::*
+::tcltest::loadTestedCommands
+
+test readbin-1.0 {Read a file as binary data} -setup { #<<<
+	set h	[file tempfile fn]
+	try {
+		chan configure $h -translation binary
+		puts -nonewline $h [encoding convertto utf-8 "hello \u306f"]
+	} finally {
+		close $h
+	}
+	set hold	[encoding system]
+	encoding system utf-8
+} -body {
+	binary encode hex [chantricks readbin $fn]
+} -cleanup {
+	encoding system $hold
+	file delete $fn
+	unset -nocomplain h fn hold
+} -result [binary encode hex [encoding convertto utf-8 "hello \u306f"]]
+#>>>
+
+::tcltest::cleanupTests
+return
+# vim: ft=tcl foldmethod=marker foldmarker=<<<,>>> ts=4 shiftwidth=4
