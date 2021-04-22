@@ -1,4 +1,4 @@
-VER="1.0"
+VER="1.0.1"
 TCLSH="tclsh"
 DESTDIR="/usr/local"
 
@@ -13,7 +13,7 @@ test: all
 
 install: install-tm install-doc
 
-install-tm: all
+install-tm: tm
 	mkdir -p "$(DESTDIR)/lib/tcl8/site-tcl/"
 	cp tm/chantricks-$(VER).tm "$(DESTDIR)/lib/tcl8/site-tcl/"
 
@@ -32,4 +32,4 @@ install-doc: docs
 clean:
 	-rm -r tm doc/chantricks.n
 
-.PHONY: all test install docs install-tm install-doc clean
+.PHONY: all test tm install docs install-tm install-doc clean
