@@ -1,29 +1,31 @@
-VER="1.0.1"
+VER="1.0.2"
 TCLSH="tclsh"
 DESTDIR="/usr/local"
 
-all: tm/chantricks-$(VER).tm docs
+all: tm docs
 
 tm/chantricks-$(VER).tm: chantricks.tcl
 	mkdir -p tm
 	cp chantricks.tcl tm/chantricks-$(VER).tm
-
-test: all
-	$(TCLSH) tests/all.tcl $(VER) $(TESTFLAGS)
-
-install: install-tm install-doc
-
-install-tm: tm
-	mkdir -p "$(DESTDIR)/lib/tcl8/site-tcl/"
-	cp tm/chantricks-$(VER).tm "$(DESTDIR)/lib/tcl8/site-tcl/"
-
-docs: doc/chantricks.n README.md
 
 doc/chantricks.n: doc/chantricks.md
 	pandoc --standalone --from markdown --to man doc/chantricks.md --output doc/chantricks.n
 
 README.md: doc/chantricks.md
 	pandoc --standalone --from markdown --to gfm doc/chantricks.md --output README.md
+
+install-tm: tm
+	mkdir -p "$(DESTDIR)/lib/tcl8/site-tcl/"
+	cp tm/chantricks-$(VER).tm "$(DESTDIR)/lib/tcl8/site-tcl/"
+
+tm: tm/chantricks-$(VER).tm
+
+test: all
+	$(TCLSH) tests/all.tcl $(VER) $(TESTFLAGS)
+
+install: install-tm install-doc
+
+docs: doc/chantricks.n README.md
 
 install-doc: docs
 	mkdir -p "$(DESTDIR)/man/mann"
