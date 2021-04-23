@@ -8,6 +8,7 @@ namespace eval ::chantricks {
 		writebin
 		appendfile
 		appendbin
+		tap_chan
 	}
 	namespace ensemble create -prefixes no
 
@@ -88,16 +89,15 @@ namespace eval ::chantricks {
 					set tail	[string trimleft [format %.6f [expr {($ts % 1000000) / 1e6}]] 0]
 					set ts_str	[clock format $s -format "%Y-%m-%dT%H:%M:%S${tail}Z" -timezone :UTC]
 					switch -exact -- $op {
-						read {
+						read - write {
 							lassign $args bytes
-							puts stderr "$ts_str read $name [binary encode hex $bytes]"
+							puts stderr "$ts_str $op $name [binary encode hex $bytes]"
 						}
-						write {
-							lassign $args bytes
-							puts stderr "$ts_str write $name [binary encode hex $bytes]"
+						initialize - finalize - drain - flush {
+							puts stderr "$ts_str $op $name"
 						}
-						finalize {
-							puts stderr "$ts_str close $name"
+						default {
+							puts stderr "$ts_str $op $name (unexpected)"
 						}
 					}
 				}
@@ -118,15 +118,23 @@ namespace eval ::chantricks {
 			finalize
 			read
 			write
+			drain
+			flush
 		}
 
 		proc initialize {cb name chan mode} { #<<<
-			return {initialize finalize read write}
+			{*}$cb $name $chan initialize
+			return {initialize finalize read write drain flush}
 		}
 
 		#>>>
 		proc finalize {cb name chan} { #<<<
 			{*}$cb $name $chan finalize
+		}
+
+		#>>>
+		proc clear {cb name chan} { #<<<
+			{*}$cb $name $chan clear
 		}
 
 		#>>>
@@ -139,6 +147,18 @@ namespace eval ::chantricks {
 		proc write {cb name chan bytes} { #<<<
 			{*}$cb $name $chan write $bytes
 			set bytes
+		}
+
+		#>>>
+		proc drain {cb name chan} { #<<<
+			{*}$cb $name $chan drain
+			return {}
+		}
+
+		#>>>
+		proc flush {cb name chan} { #<<<
+			{*}$cb $name $chan flush
+			return {}
 		}
 
 		#>>>

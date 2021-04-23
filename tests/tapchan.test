@@ -1,0 +1,108 @@
+package require tcltest
+namespace import ::tcltest::*
+::tcltest::loadTestedCommands
+
+set ts_regex	{[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{6}Z}
+
+test tapchan-1.0 {Trace reads and writes to a file} -setup { #<<<
+	set hold	[encoding system]
+	encoding system utf-8
+	set h	[file tempfile]
+} -body {
+	chantricks tap_chan $h
+	puts -nonewline $h "hello, tapchan"
+	seek $h -7 end
+	set res	[read $h]
+	chan pop $h
+	set res
+} -cleanup {
+	encoding system $hold
+	if {$h in [chan names]} {
+		close $h
+	}
+	unset -nocomplain h hold
+} -match regexp -result {^tapchan$} -errorOutput "^$ts_regex initialize file\[0-9\]+
+$ts_regex write file\[0-9\]+ 68656c6c6f2c207461706368616e
+$ts_regex flush file\[0-9\]+
+$ts_regex read file\[0-9\]+ 7461706368616e
+$ts_regex drain file\[0-9\]+
+$ts_regex flush file\[0-9\]+
+$ts_regex finalize file\[0-9\]+
+\$"
+#>>>
+test tapchan-2.0 {Implicit finalize when chan is closed} -body { #<<<
+	set h	[file tempfile]
+	chantricks tap_chan $h
+	close $h
+} -cleanup {
+	if {$h in [chan names]} {
+		close $h
+	}
+	unset -nocomplain h
+} -match regexp -errorOutput "^$ts_regex initialize file\[0-9\]+
+$ts_regex drain file\[0-9\]+
+$ts_regex flush file\[0-9\]+
+$ts_regex finalize file\[0-9\]+
+\$"
+#>>>
+test tapchan-3.0 {Friendly name} -setup { #<<<
+	set hold	[encoding system]
+	encoding system utf-8
+	set h	[file tempfile]
+} -body {
+	chantricks tap_chan $h {} tapchan-3.0
+	puts -nonewline $h "hello, tapchan"
+	seek $h -7 end
+	set res	[read $h]
+	chan pop $h
+	set res
+} -cleanup {
+	encoding system $hold
+	if {$h in [chan names]} {
+		close $h
+	}
+	unset -nocomplain h hold
+} -match regexp -result {^tapchan$} -errorOutput "^$ts_regex initialize tapchan-3.0
+$ts_regex write tapchan-3.0 68656c6c6f2c207461706368616e
+$ts_regex flush tapchan-3.0
+$ts_regex read tapchan-3.0 7461706368616e
+$ts_regex drain tapchan-3.0
+$ts_regex flush tapchan-3.0
+$ts_regex finalize tapchan-3.0
+\$"
+#>>>
+test tapchan-4.0 {Custom callback} -setup { #<<<
+	set hold	[encoding system]
+	encoding system utf-8
+	set h	[file tempfile]
+	set ::tapchan-4.0_log	{}
+	set tapchan-4.0_cb [list apply {{name chan op args} {
+		lappend ::tapchan-4.0_log $op $name {*}$args
+	}}]
+} -body {
+	chantricks tap_chan $h ${tapchan-4.0_cb} tapchan-4.0
+	puts -nonewline $h "hello, tapchan"
+	seek $h -7 end
+	set res	[read $h]
+	chan pop $h
+	set ::tapchan-4.0_log
+} -cleanup {
+	encoding system $hold
+	if {$h in [chan names]} {
+		close $h
+	}
+	unset -nocomplain h hold tapchan-4.0_cb ::tapchan-4.0_log
+} -result [list {*}{
+	initialize tapchan-4.0
+	write tapchan-4.0 {hello, tapchan}
+	flush tapchan-4.0
+	read tapchan-4.0 tapchan
+	drain tapchan-4.0
+	flush tapchan-4.0
+	finalize tapchan-4.0
+}]
+#>>>
+
+::tcltest::cleanupTests
+return
+# vim: ft=tcl foldmethod=marker foldmarker=<<<,>>> ts=4 shiftwidth=4

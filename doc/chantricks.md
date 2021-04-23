@@ -78,8 +78,11 @@ common use cases for dealing with files and channels.
     friendly name for *chan* as *name*.  If *name* isn't specified, it defaults
     to *chan*.  Each time the channel is read from, written to, or closed *cb*
     is executed, appending the arguments *chan* (the Tcl channel handle),
-    *name* (the friendly name supplied for this channel), *op* (one of:
-    read, write, finalize), and *bytes* (for read and write).
+	*name* (the friendly name supplied for this channel), *op* (one of:
+	initialize, read, write, drain, flush or finalize), and *bytes* (for read
+	and write).  "initialize" is emitted when the tap is added to the channel,
+	and "finalize" when it is popped off (which can happen manually or
+	implicitly when the channel is closed).
 
 # EXAMPLES
 
