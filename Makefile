@@ -1,6 +1,7 @@
 VER="1.0.3"
 TCLSH="tclsh"
-DESTDIR="/usr/local"
+DESTDIR=
+PREFIX="/usr/local"
 
 all: tm docs
 
@@ -15,8 +16,8 @@ README.md: doc/chantricks.md
 	pandoc --standalone --from markdown --to gfm doc/chantricks.md --output README.md
 
 install-tm: tm
-	mkdir -p "$(DESTDIR)/lib/tcl8/site-tcl/"
-	cp tm/chantricks-$(VER).tm "$(DESTDIR)/lib/tcl8/site-tcl/"
+	mkdir -p "$(DESTDIR)$(PREFIX)/lib/tcl8/site-tcl/"
+	cp tm/chantricks-$(VER).tm "$(DESTDIR)$(PREFIX)/lib/tcl8/site-tcl/"
 
 tm: tm/chantricks-$(VER).tm
 
@@ -28,8 +29,8 @@ install: install-tm install-doc
 docs: doc/chantricks.n README.md
 
 install-doc: docs
-	mkdir -p "$(DESTDIR)/man/mann"
-	cp doc/chantricks.n "$(DESTDIR)/man/mann/"
+	mkdir -p "$(DESTDIR)$(PREFIX)/man/mann"
+	cp doc/chantricks.n "$(DESTDIR)$(PREFIX)/man/mann/"
 
 clean:
 	-rm -r tm doc/chantricks.n
