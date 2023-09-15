@@ -87,7 +87,7 @@ namespace eval ::chantricks {
 					set ts		[clock microseconds]
 					set s		[expr {$ts / 1000000}]
 					set tail	[string trimleft [format %.6f [expr {($ts % 1000000) / 1e6}]] 0]
-					set ts_str	[clock format $s -format "%Y-%m-%dT%H:%M:%S${tail}Z" -timezone :UTC]
+					set ts_str	[clock format $s -format %Y-%m-%dT%H:%M:%S -timezone :UTC]${tail}Z
 					switch -exact -- $op {
 						read - write {
 							lassign $args bytes
