@@ -1,0 +1,145 @@
+package require tcltest
+namespace import ::tcltest::*
+::tcltest::loadTestedCommands
+package require chantricks
+
+test with_chan-1.1 {code transparency: return} -setup { #<<<
+	proc t-1.1 {} {
+		chantricks with_chan h {file tempfile} {
+			set ::g_h $h
+			return inside	;# should return from t-1.1
+		}
+		return outside
+	}
+} -body {
+	list [t-1.1] [expr {$g_h in [chan names]}]
+} -cleanup {
+	unset -nocomplain g_h
+	rename t-1.1 {}
+} -result {inside 0}
+#>>>
+test with_chan-2.1 {code transparency: continue} -body { #<<<
+	set g_h		{}
+	set res		{}
+	for {set i 0} {$i < 10} {incr i} {
+		lappend res	[chantricks with_chan h {file tempfile} {
+			lappend g_h $h
+			if {$i % 2} continue
+			set i
+		}]
+	}
+	list $res [lmap h $g_h {expr {$h in [chan names]}}]
+} -cleanup {
+	unset -nocomplain g_h res h i
+} -result {{0 2 4 6 8} {0 0 0 0 0 0 0 0 0 0}}
+#>>>
+test with_chan-3.1 {code transparency: break} -body { #<<<
+	set g_h		{}
+	set res		{}
+	for {set i 0} {$i < 10} {incr i} {
+		lappend res	[chantricks with_chan h {file tempfile} {
+			if {$i >= 5} break
+			lappend g_h $h
+			set i
+		}]
+	}
+	list $res [lmap h $g_h {expr {$h in [chan names]}}]
+} -cleanup {
+	unset -nocomplain g_h res h i
+} -result {{0 1 2 3 4} {0 0 0 0 0}}
+#>>>
+test with_chan-4.1 {code transparency: error} -body { #<<<
+	set g_h		{}
+	set res		{}
+	list [catch {
+		for {set i 0} {$i < 10} {incr i} {
+			lappend res	[chantricks with_chan h {file tempfile} {
+				if {$i >= 5} {error bang!}
+				lappend g_h $h
+				set i
+			}]
+		}
+	} r o] $res $r [dict get $o -code] [lmap h $g_h {expr {$h in [chan names]}}]
+} -cleanup {
+	unset -nocomplain g_h res h i r o
+} -result {1 {0 1 2 3 4} bang! 1 {0 0 0 0 0}}
+#>>>
+test with_chan-5.1 {code transparency: exception with errorcode} -body { #<<<
+	set g_h		{}
+	set res		{}
+	list [catch {
+		for {set i 0} {$i < 10} {incr i} {
+			lappend res	[chantricks with_chan h {file tempfile} {
+				if {$i >= 5} {throw {t-5.1 foo} bang!}
+				lappend g_h $h
+				set i
+			}]
+		}
+	} r o] $res $r [dict get $o -code] [dict get $o -errorcode] [lmap h $g_h {expr {$h in [chan names]}}]
+} -cleanup {
+	unset -nocomplain g_h res h i r o
+} -result {1 {0 1 2 3 4} bang! 1 {t-5.1 foo} {0 0 0 0 0}}
+#>>>
+test with_chan-6.1 {code transparency: ok} -body { #<<<
+	set g_h		{}
+	set res		{}
+	list [catch {
+		for {set i 0} {$i < 10} {incr i} {
+			lappend res	[chantricks with_chan h {file tempfile} {
+				lappend g_h $h
+				set i
+			}]
+		}
+	} r o] $res [dict get $o -code] [lmap h $g_h {expr {$h in [chan names]}}]
+} -cleanup {
+	unset -nocomplain g_h res h i r o
+} -result {0 {0 1 2 3 4 5 6 7 8 9} 0 {0 0 0 0 0 0 0 0 0 0}}
+#>>>
+test with_chan-7.1 {code transparency: undefined int} -body { #<<<
+	set g_h		{}
+	set res		{}
+	list [catch {
+		for {set i 0} {$i < 10} {incr i} {
+			lappend res	[chantricks with_chan h {file tempfile} {
+				if {$i >= 5} {return -level 0 -code 42 "thanks for the fish"}
+				lappend g_h $h
+				set i
+			}]
+		}
+	} r o] $r $res [dict get $o -code] [lmap h $g_h {expr {$h in [chan names]}}]
+} -cleanup {
+	unset -nocomplain g_h res h i r o
+} -result {42 {thanks for the fish} {0 1 2 3 4} 42 {0 0 0 0 0}}
+#>>>
+
+coroutine coro eval {
+	try {
+		test with_chan-8.1 {code transparency: yield} -body { #<<<
+			set g_h		{}
+			set res		{}
+			list [catch {
+				for {set i 0} {$i < 10} {incr i} {
+					lappend res	[chantricks with_chan h {file tempfile} {
+						lappend g_h $h
+						after 1 [list [info coroutine] y$i]
+						yield
+					}]
+				}
+			} r o] $res [dict get $o -code] [lmap h $g_h {expr {$h in [chan names]}}]
+		} -cleanup {
+			unset -nocomplain g_h res h i r o
+		} -result {0 {y0 y1 y2 y3 y4 y5 y6 y7 y8 y9} 0 {0 0 0 0 0 0 0 0 0 0}}
+		#>>>
+	} finally {
+		set coro_done	1
+	}
+}
+
+if {![info exists coro_done]} {
+	vwait coro_done
+}
+unset -nocomplain coro_done
+
+::tcltest::cleanupTests
+return
+# vim: ft=tcl foldmethod=marker foldmarker=<<<,>>> ts=4 shiftwidth=4
