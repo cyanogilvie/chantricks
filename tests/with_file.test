@@ -125,6 +125,23 @@ test with_file-7.1 {code transparency: undefined int} -body { #<<<
 	unset -nocomplain g_h res h i r o tmp
 } -result {42 {thanks for the fish} {0 1 2 3 4} 42 {0 0 0 0 0}}
 #>>>
+test with_file-10.1 {handlevar name handling} -body { #<<<
+	close [file tempfile tmp]
+	set g_h		{}
+	set res		{}
+	list [catch {
+		for {set i 0} {$i < 10} {incr i} {
+			lappend res	[chantricks with_file foo $tmp {
+				lappend g_h $foo
+				set i
+			}]
+		}
+	} r o] $res [dict get $o -code] [lmap h $g_h {expr {$h in [chan names]}}]
+} -cleanup {
+	file delete $tmp
+	unset -nocomplain g_h res foo h i r o tmp
+} -result {0 {0 1 2 3 4 5 6 7 8 9} 0 {0 0 0 0 0 0 0 0 0 0}}
+#>>>
 
 coroutine coro eval {
 	try {

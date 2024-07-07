@@ -22,7 +22,9 @@ test tapchan-1.0 {Trace reads and writes to a file} -setup { #<<<
 	}
 	unset -nocomplain h hold
 } -match regexp -result {^tapchan$} -errorOutput "^$ts_regex initialize file\[0-9\]+
+$ts_regex clear file\[0-9\]+
 $ts_regex write file\[0-9\]+ 68656c6c6f2c207461706368616e
+$ts_regex clear file\[0-9\]+
 $ts_regex flush file\[0-9\]+
 $ts_regex read file\[0-9\]+ 7461706368616e
 $ts_regex drain file\[0-9\]+
@@ -63,7 +65,9 @@ test tapchan-3.0 {Friendly name} -setup { #<<<
 	}
 	unset -nocomplain h hold
 } -match regexp -result {^tapchan$} -errorOutput "^$ts_regex initialize tapchan-3.0
+$ts_regex clear tapchan-3.0
 $ts_regex write tapchan-3.0 68656c6c6f2c207461706368616e
+$ts_regex clear tapchan-3.0
 $ts_regex flush tapchan-3.0
 $ts_regex read tapchan-3.0 7461706368616e
 $ts_regex drain tapchan-3.0
@@ -94,7 +98,9 @@ test tapchan-4.0 {Custom callback} -setup { #<<<
 	unset -nocomplain h hold tapchan-4.0_cb ::tapchan-4.0_log
 } -result [list {*}{
 	initialize tapchan-4.0
+	clear tapchan-4.0
 	write tapchan-4.0 {hello, tapchan}
+	clear tapchan-4.0
 	flush tapchan-4.0
 	read tapchan-4.0 tapchan
 	drain tapchan-4.0

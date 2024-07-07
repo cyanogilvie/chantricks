@@ -30,8 +30,6 @@ namespace eval ::chantricks {
 
 	#>>>
 	proc with_file {handlevar fn args} { #<<<
-		upvar 1 $handlevar h
-
 		switch -- [llength $args] {
 			1 {
 				set mode	r
@@ -45,7 +43,7 @@ namespace eval ::chantricks {
 			}
 		}
 
-		tailcall with_chan h [list open $fn $mode] $script
+		tailcall with_chan $handlevar [list open $fn $mode] $script
 	}
 
 	#>>>
@@ -93,7 +91,7 @@ namespace eval ::chantricks {
 							lassign $args bytes
 							puts stderr "$ts_str $op $name [binary encode hex $bytes]"
 						}
-						initialize - finalize - drain - flush {
+						initialize - finalize - drain - flush - clear {
 							puts stderr "$ts_str $op $name"
 						}
 						default {
@@ -120,11 +118,12 @@ namespace eval ::chantricks {
 			write
 			drain
 			flush
+			clear
 		}
 
 		proc initialize {cb name chan mode} { #<<<
 			{*}$cb $name $chan initialize
-			return {initialize finalize read write drain flush}
+			return {initialize finalize read write drain flush clear}
 		}
 
 		#>>>
