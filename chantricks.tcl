@@ -73,7 +73,7 @@ namespace eval ::chantricks {
 
 	#>>>
 	proc appendbin {fn bytes} { # Append to a file in binary mode <<<
-		with_file h $fn ab {puts -nonewline $h $chars}
+		with_file h $fn ab {puts -nonewline $h $bytes}
 	}
 
 	#>>>
