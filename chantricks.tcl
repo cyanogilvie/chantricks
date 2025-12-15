@@ -90,8 +90,13 @@ namespace eval ::chantricks {
 						read - write {
 							lassign $args bytes
 							puts stderr "$ts_str $op $name [binary encode hex $bytes]"
+							set bytes
 						}
-						initialize - finalize - drain - flush - clear {
+						initialize {
+							puts stderr "$ts_str $op $name"
+							list initialize finalize drain flush clear
+						}
+						drain - flush - clear {
 							puts stderr "$ts_str $op $name"
 						}
 						default {

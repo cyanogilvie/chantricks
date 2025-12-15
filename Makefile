@@ -1,4 +1,4 @@
-VER="1.0.7"
+VER="1.0.8"
 TCLSH="tclsh"
 DESTDIR=
 PREFIX="/usr/local"
@@ -17,7 +17,9 @@ README.md: doc/chantricks.md
 
 install-tm: tm
 	mkdir -p "$(DESTDIR)$(PREFIX)/lib/tcl8/site-tcl/"
+	mkdir -p "$(DESTDIR)$(PREFIX)/lib/tcl9/site-tcl/"
 	cp tm/chantricks-$(VER).tm "$(DESTDIR)$(PREFIX)/lib/tcl8/site-tcl/"
+	cp tm/chantricks-$(VER).tm "$(DESTDIR)$(PREFIX)/lib/tcl9/site-tcl/"
 
 tm: tm/chantricks-$(VER).tm
 
