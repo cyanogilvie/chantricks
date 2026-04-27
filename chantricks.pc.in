@@ -1,0 +1,16 @@
+# pkg-config metadata for chantricks. Pure-Tcl module — no Cflags / Libs
+# (nothing to link against). The single useful variable for downstream
+# meson / shell consumers is `tcl_tm_path`: the directory that should be
+# added to a Tcl interpreter's tcl::tm::path so that
+# `package require chantricks` resolves to the installed module.
+#
+# Layout assumes the install pattern produced by Tcl extension meson
+# builds: the .pc file lands in ${prefix}/lib/pkgconfig and the .tm
+# module in ${prefix}/lib/tcl<MAJOR>/site-tcl. Resolving via
+# ${pcfiledir}/.. keeps the file relocatable.
+
+tcl_tm_path=${pcfiledir}/../tcl@TCL_MAJOR@/site-tcl
+
+Name: @PACKAGE_NAME@
+Description: Tcl channel utilities (with_chan / with_file / readfile / writefile / tapchan)
+Version: @PACKAGE_VERSION@

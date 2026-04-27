@@ -10,22 +10,14 @@ chantricks - Sugar for Tcl channels
 
 **package require chantricks** ?1.0?
 
-**chantricks::with_chan** *handlevar* *create_script* *use_script*
-
-**chantricks::with_file** *handlevar* *filename* ?mode? *script*
-
-**chantricks::readfile** *filename*
-
-**chantricks::readbin** *filename*
-
-**chantricks::writefile** *filename* *chars*
-
-**chantricks::writebin** *filename* *bytes*
-
-**chantricks::appendfile** *filename* *chars*
-
-**chantricks::appendbin** *filename* *bytes*
-
+**chantricks::with_chan** *handlevar* *create_script* *use_script*\
+**chantricks::with_file** *handlevar* *filename* ?mode? *script*\
+**chantricks::readfile** *filename*\
+**chantricks::readbin** *filename*\
+**chantricks::writefile** *filename* *chars*\
+**chantricks::writebin** *filename* *bytes*\
+**chantricks::appendfile** *filename* *chars*\
+**chantricks::appendbin** *filename* *bytes*\
 **chantricks::tap_chan** *chan* ?cb? ?name?
 
 # DESCRIPTION
@@ -43,46 +35,55 @@ common use cases for dealing with files and channels.
 # COMMANDS
 
 **chantricks::with_chan** *handlevar* *create_script* *use_script*
+
 :   Execute *use_script* in the current frame, with the channel handle produced
     by *create_script* available as the variable *handlevar*.  When
     *use_script* terminates (via any return type) the channel is closed before
     returning the result of the script, or re-throwing the exception it threw.
 
 **chantricks::with_file** *handlevar* *filename* ?mode? *script*
+
 :   Execute *script* in the current frame, with the channel handle opened
     to the file *filename* using the mode *mode* (as interpreted by **open**).
     If *mode* isn't supplied it defaults to "r".
 
 **chantricks::readfile** *filename*
+
 :   Return the contents of *filename* as text, in the system encoding.
 
 **chantricks::readbin** *filename*
+
 :   Return the contents of *filename* as binary data.
 
 **chantricks::writefile** *filename* *chars*
+
 :   Write *chars* to *filename* as text, in the system encoding.
 
 **chantricks::writebin** *filename* *bytes*
+
 :   Write *bytes* to *filename* as binary data.
 
 **chantricks::appendfile** *filename* *chars*
+
 :   Append *chars* to *filename* as text, in the system encoding.
 
 **chantricks::appendbin** *filename* *bytes*
+
 :   Append *bytes* to *filename* as binary data.
 
 **chantricks::tap_chan** *chan* ?cb? ?name?
+
 :   Intercept reads and writes to *chan*, which call *cb* for each read and
     write on that channel.  If *cb* isn't specified, log the reads and writes
     to stderr with a timestamp and hex encoded data.  Optionally supply a
     friendly name for *chan* as *name*.  If *name* isn't specified, it defaults
     to *chan*.  Each time the channel is read from, written to, or closed *cb*
     is executed, appending the arguments *chan* (the Tcl channel handle),
-	*name* (the friendly name supplied for this channel), *op* (one of:
-	initialize, read, write, drain, flush or finalize), and *bytes* (for read
-	and write).  "initialize" is emitted when the tap is added to the channel,
-	and "finalize" when it is popped off (which can happen manually or
-	implicitly when the channel is closed).
+    *name* (the friendly name supplied for this channel), *op* (one of:
+    initialize, read, write, drain, flush or finalize), and *bytes* (for read
+    and write).  "initialize" is emitted when the tap is added to the channel,
+    and "finalize" when it is popped off (which can happen manually or
+    implicitly when the channel is closed).
 
 # EXAMPLES
 
@@ -210,5 +211,5 @@ proc md5 bytes {
 
 # LICENSE
 
-This package is Copyright 2021 Cyan Ogilvie, and is made available under
+This package is Copyright 2021-2026 Cyan Ogilvie, and is made available under
 the same license terms as the Tcl Core.

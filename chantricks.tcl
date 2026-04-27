@@ -96,7 +96,7 @@ namespace eval ::chantricks {
 							puts stderr "$ts_str $op $name"
 							list initialize finalize drain flush clear
 						}
-						drain - flush - clear {
+						drain - flush - clear - finalize {
 							puts stderr "$ts_str $op $name"
 						}
 						default {
