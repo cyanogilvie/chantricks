@@ -1,5 +1,5 @@
 project('chantricks',
-  version:            '1.0.9',
+  version:            '1.0.10',
   meson_version:      '>=1.3.0',
 )
 # Pure-Tcl module: chantricks is a single .tcl file distributed as a
@@ -19,9 +19,9 @@ chantricks_tm = configure_file(
   input:          'chantricks.tcl',
   output:         master_tm_name,
   copy:           true,
-  install:        not meson.is_subproject(),
+  install:        true,
   install_dir:    tm_install_dir,
-  install_tag:    'runtime',
+  install_tag:    meson.is_subproject() ? 'deps' : 'runtime',
 )
 
 # Generate a pkg-config file. Pure-Tcl module — no Cflags / Libs, just
@@ -38,8 +38,9 @@ configure_file(
   input:          meson.project_name() + '.pc.in',
   output:         meson.project_name() + '.pc',
   configuration:  pc_conf,
-  install:        not meson.is_subproject(),
+  install:        true,
   install_dir:    tcl_dep.get_variable('libdir') / 'pkgconfig',
+  install_tag:    meson.is_subproject() ? 'deps' : 'runtime',
 )
 
 # Subproject consumers rely on the variables here matching the .pc
